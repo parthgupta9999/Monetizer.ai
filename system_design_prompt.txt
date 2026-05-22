@@ -1,0 +1,146 @@
+Monetizer.ai - System Design Prompt for Gemini
+
+Overview
+Design a comprehensive system architecture diagram for Monetizer.ai, a platform that connects users with AI-powered creator personas for product recommendations and monetized conversations.
+
+Core Components
+
+1. Frontend Layer
+Technology: HTML5, CSS3, JavaScript (Vanilla), Canvas-confetti for animations
+Features:
+- Multi-page SPA with real redirects (Home → Creator Selection → Chat)
+- Search functionality with Trie-based autocomplete
+- Voice chat interface with audio visualization
+- Responsive dark mode UI
+- Logo animations and visual effects
+
+2. Backend Services
+
+A. Python Flask Server
+Port: 5001
+Core Functions:
+- RESTful API endpoints (/api/chat, /api/health)
+- CORS enabled for frontend communication
+- Conversation context management per session
+- Loading overlay management
+
+B. AI/LLM Integration
+Primary Model: Groq API (llama-3.1-8b-instant)
+Features:
+- Context-aware conversations
+- Markdown response formatting (bold, italic, lists, headers, code blocks, links)
+- System prompts for creator-specific responses
+- Token limits: 2000 tokens
+
+C. RAG (Retrieval-Augmented Generation) System
+Purpose: Enhance AI responses with creator-specific knowledge
+Architecture:
+- Per-creator Supabase databases
+- Vector embeddings using sentence-transformers
+- Semantic similarity search with 0.3 relevance threshold
+- Custom table names (e.g., mkbhd_videos, jerry_videos, unbox_videos)
+Components:
+- rag_service.py: Core RAG logic
+- creator_config.py: Creator-specific configurations
+- Embedding generation and vector search
+- Fallback responses for irrelevant queries
+
+D. Voice Processing
+STT (Speech-to-Text): Web Speech API (browser-based)
+TTS (Text-to-Speech): ElevenLabs API
+Voice ID: 5Q0t7uMcjvnagumLfvZi (Male voice)
+Audio analysis for real-time visualization
+Logo size scaling based on audio pitch/frequency
+
+3. Data Layer
+
+Supabase Configuration (Per Creator)
+Use .env (see .env.example): SUPABASE_*_URL, SUPABASE_*_KEY, optional table names (e.g. mkbhd_videos, jerry_videos, unbox_videos).
+
+Creator Data Schema
+CREATE TABLE [creator_name]_videos (
+    id SERIAL PRIMARY KEY,
+    title TEXT,
+    content TEXT,
+    embedding VECTOR(384),
+    similarity_score FLOAT
+);
+
+4. External APIs
+ElevenLabs API: Text-to-Speech
+Groq API: LLM inference
+Supabase REST API: Database queries and vector search
+
+5. Static Assets
+Creator profile images (photos/ directory)
+Logo (photos/mono.png)
+CSS animations and effects
+
+Data Flow
+
+User Chat Flow
+1. User inputs message → Frontend sendMessage()
+2. Frontend sends POST to /api/chat with message, creator, sessionId
+3. Backend calls RAG service to fetch relevant knowledge from Supabase
+4. RAG service generates embeddings and performs semantic search
+5. Backend constructs enhanced prompt with context
+6. Backend calls Groq API with enhanced prompt
+7. Response formatted with markdown parsing
+8. Frontend displays formatted response with animations
+
+Voice Chat Flow
+1. User clicks microphone → Opens voice chat modal
+2. Web Speech API listens to user input
+3. On pause, transcript sent to backend (same as chat flow)
+4. Backend processes and returns response
+5. Backend /api/tts returns ElevenLabs audio (key only on server)
+6. Frontend plays audio with logo visualization
+7. AudioContext analyzes frequency for real-time logo scaling
+
+Creator Registration Flow
+1. User fills signup form
+2. Frontend validates email (regex) and phone (US format)
+3. On submit: trigger confetti animation
+4. Display success modal after delay
+5. Redirect to home page
+
+System Requirements
+
+Performance
+- Chat response time: < 3 seconds
+- Voice response time: < 5 seconds
+- Real-time audio visualization: 60 FPS
+- Vector search: < 500ms
+
+Security
+- CORS enabled for frontend origin
+- API keys supplied via environment variables (.env), not committed
+- Input validation and sanitization
+
+Include in Diagram
+
+Please create a system design diagram showing:
+1. User Layer: Browser/Client interacting with the platform
+2. Frontend Layer: HTML/CSS/JS files
+3. API Gateway: Flask server handling requests (Port 5001)
+4. Business Logic: RAG service, AI integration, Voice processing
+5. Data Layer: Supabase databases per creator (4 separate databases)
+6. External Services: Groq API, ElevenLabs API
+7. Data Flow Arrows: Show request/response directions
+8. Security Layer: CORS, API key management
+
+Special Features to Highlight
+- Real-time voice visualization with pitch-based logo scaling
+- RAG-enhanced responses using semantic search
+- Per-creator isolated knowledge bases
+- Confetti animations for user engagement
+- Dark mode UI with cyan accent colors
+- Conversation context management
+
+Additional Context
+Platform name: Monetizer.ai
+Logo: mono.png (brain icon)
+Brand colors: Cyan (#0ea5e9, #06b6d4) and White
+Supported Creators: 4 (MKBHD, Austin Evans, JerryRigEverything, Unbox Therapy)
+
+Please generate a comprehensive system architecture diagram based on this detailed specification.

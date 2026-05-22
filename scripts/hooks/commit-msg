@@ -1,0 +1,8 @@
+#!/bin/sh
+# Reject commits that still contain Cursor co-author trailers.
+MSG_FILE="$1"
+if grep -qiE 'Co-authored-by: Cursor|cursoragent@cursor\.com|Made-with: Cursor' "$MSG_FILE" 2>/dev/null; then
+  echo "Blocked: commit message must not include Cursor attribution." >&2
+  exit 1
+fi
+exit 0
